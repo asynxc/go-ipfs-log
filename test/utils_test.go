@@ -8,7 +8,7 @@ import (
 	"berty.tech/go-ipfs-log/iface"
 	"github.com/ipfs/go-datastore"
 	dssync "github.com/ipfs/go-datastore/sync"
-	core_iface "github.com/ipfs/interface-go-ipfs-core"
+	format "github.com/ipfs/go-ipld-format"
 	config "github.com/ipfs/kubo/config"
 	ipfsCore "github.com/ipfs/kubo/core"
 	"github.com/ipfs/kubo/core/coreapi"
@@ -41,7 +41,7 @@ func newRepo() (ipfs_repo.Repo, error) {
 	}, nil
 }
 
-func NewMemoryServices(ctx context.Context, t testing.TB, m mocknet.Mocknet) (core_iface.CoreAPI, func()) {
+func NewMemoryServices(ctx context.Context, t testing.TB, m mocknet.Mocknet) (format.DAGService, func()) {
 	t.Helper()
 
 	r, err := newRepo()
@@ -63,7 +63,7 @@ func NewMemoryServices(ctx context.Context, t testing.TB, m mocknet.Mocknet) (co
 	close := func() {
 		core.Close()
 	}
-	return api, close
+	return api.Dag(), close
 }
 
 func lastEntry(entries []iface.IPFSLogEntry) iface.IPFSLogEntry {

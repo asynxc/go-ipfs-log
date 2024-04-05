@@ -6,7 +6,6 @@ import (
 
 	"github.com/ipfs/go-cid"
 	format "github.com/ipfs/go-ipld-format"
-	core_iface "github.com/ipfs/interface-go-ipfs-core"
 
 	"berty.tech/go-ipfs-log/accesscontroller"
 	"berty.tech/go-ipfs-log/identityprovider"
@@ -35,8 +34,8 @@ type FetchOptions struct {
 }
 
 type IO interface {
-	Write(ctx context.Context, ipfs core_iface.CoreAPI, obj interface{}, opts *WriteOpts) (cid.Cid, error)
-	Read(ctx context.Context, ipfs core_iface.CoreAPI, contentIdentifier cid.Cid) (format.Node, error)
+	Write(ctx context.Context, adder format.NodeAdder, obj interface{}, opts *WriteOpts) (cid.Cid, error)
+	Read(ctx context.Context, adder format.NodeGetter, contentIdentifier cid.Cid) (format.Node, error)
 	DecodeRawEntry(node format.Node, hash cid.Cid, p identityprovider.Interface) (IPFSLogEntry, error)
 	DecodeRawJSONLog(node format.Node) (*JSONLog, error)
 }

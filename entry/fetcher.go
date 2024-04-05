@@ -9,7 +9,7 @@ import (
 	"berty.tech/go-ipfs-log/iface"
 	"berty.tech/go-ipfs-log/io/cbor"
 	"github.com/ipfs/go-cid"
-	core_iface "github.com/ipfs/interface-go-ipfs-core"
+	format "github.com/ipfs/go-ipld-format"
 	"golang.org/x/sync/semaphore"
 )
 
@@ -39,11 +39,11 @@ type Fetcher struct {
 	condProcess   *sync.Cond
 	muProcess     *sync.RWMutex
 	sem           *semaphore.Weighted
-	ipfs          core_iface.CoreAPI
+	ipfs          format.NodeGetter
 	progressChan  chan iface.IPFSLogEntry
 }
 
-func NewFetcher(ipfs core_iface.CoreAPI, options *FetchOptions) *Fetcher {
+func NewFetcher(ipfs format.NodeGetter, options *FetchOptions) *Fetcher {
 	// set default
 	length := -1
 	if options.Length != nil {

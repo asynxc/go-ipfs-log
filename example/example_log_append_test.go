@@ -129,7 +129,7 @@ func Example_logAppend() {
 	}
 
 	// creating log
-	logA, err := log.NewLog(serviceA, identityA, &log.LogOptions{ID: "A"})
+	logA, err := log.NewLog(serviceA.Dag(), identityA, &log.LogOptions{ID: "A"})
 	if err != nil {
 		panic(err)
 	}
@@ -145,7 +145,7 @@ func Example_logAppend() {
 		panic(fmt.Errorf("ToMultihash error: %s", err))
 	}
 
-	res, err := log.NewFromMultihash(ctx, serviceB, identityB, h, &log.LogOptions{}, &log.FetchOptions{})
+	res, err := log.NewFromMultihash(ctx, serviceB.Dag(), identityB, h, &log.LogOptions{}, &log.FetchOptions{})
 	if err != nil {
 		panic(fmt.Errorf("NewFromMultihash error: %s", err))
 	}
@@ -154,7 +154,5 @@ func Example_logAppend() {
 	fmt.Println(res.ToString(nil))
 
 	// Output:
-	// go-libp2p resource manager protection disabled
-	// go-libp2p resource manager protection disabled
 	// hello world
 }

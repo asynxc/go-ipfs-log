@@ -12,8 +12,6 @@ import (
 	"github.com/ipfs/go-cid"
 	cbornode "github.com/ipfs/go-ipld-cbor"
 	format "github.com/ipfs/go-ipld-format"
-	core_iface "github.com/ipfs/interface-go-ipfs-core"
-	"github.com/ipfs/interface-go-ipfs-core/path"
 	ic "github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/polydawn/refmt/obj/atlas"
 
@@ -230,10 +228,10 @@ func (i *IOCbor) SetDebug(val bool) {
 }
 
 // WriteCBOR writes a CBOR representation of a given object in IPFS' DAG.
-func (i *IOCbor) Write(ctx context.Context, ipfs core_iface.CoreAPI, obj interface{}, opts *iface.WriteOpts) (cid.Cid, error) {
-	if opts == nil {
-		opts = &iface.WriteOpts{}
-	}
+func (i *IOCbor) Write(ctx context.Context, ipfs format.NodeAdder, obj interface{}, _ *iface.WriteOpts) (cid.Cid, error) {
+	// if opts == nil {
+	// 	opts = &iface.WriteOpts{}
+	// }
 
 	switch o := obj.(type) {
 	case iface.IPFSLogEntry:
@@ -255,23 +253,24 @@ func (i *IOCbor) Write(ctx context.Context, ipfs core_iface.CoreAPI, obj interfa
 		fmt.Printf("\nStr of cbor: %x\n", cborNode.RawData())
 	}
 
-	err = ipfs.Dag().Add(ctx, cborNode)
+	err = ipfs.Add(ctx, cborNode)
 	if err != nil {
 		return cid.Undef, errmsg.ErrIPFSOperationFailed.Wrap(err)
 	}
 
-	if opts.Pin {
-		if err = ipfs.Pin().Add(ctx, path.IpfsPath(cborNode.Cid())); err != nil {
-			return cid.Undef, errmsg.ErrIPFSOperationFailed.Wrap(err)
-		}
-	}
+	// TODO: implement pinning
+	// if opts.Pin {
+	// 	if err = ipfs.Pin().Add(ctx, path.IpfsPath(cborNode.Cid())); err != nil {
+	// 		return cid.Undef, errmsg.ErrIPFSOperationFailed.Wrap(err)
+	// 	}
+	// }
 
 	return cborNode.Cid(), nil
 }
 
 // Read reads a CBOR representation of a given object from IPFS' DAG.
-func (i *IOCbor) Read(ctx context.Context, ipfs core_iface.CoreAPI, contentIdentifier cid.Cid) (format.Node, error) {
-	return ipfs.Dag().Get(ctx, contentIdentifier)
+func (i *IOCbor) Read(ctx context.Context, ipfs format.NodeGetter, contentIdentifier cid.Cid) (format.Node, error) {
+	return ipfs.Get(ctx, contentIdentifier)
 }
 
 func (i *IOCbor) PreSign(entry iface.IPFSLogEntry) (iface.IPFSLogEntry, error) {

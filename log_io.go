@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	core_iface "github.com/ipfs/interface-go-ipfs-core"
+	format "github.com/ipfs/go-ipld-format"
 
 	"berty.tech/go-ipfs-log/iface"
 
@@ -28,7 +28,7 @@ type FetchOptions struct {
 	SortFn        iface.EntrySortFn
 }
 
-func toMultihash(ctx context.Context, services core_iface.CoreAPI, log *IPFSLog) (cid.Cid, error) {
+func toMultihash(ctx context.Context, services format.NodeAdder, log *IPFSLog) (cid.Cid, error) {
 	if log.heads.Len() == 0 {
 		return cid.Undef, errmsg.ErrEmptyLogSerialization
 	}
@@ -36,7 +36,7 @@ func toMultihash(ctx context.Context, services core_iface.CoreAPI, log *IPFSLog)
 	return log.io.Write(ctx, services, log.ToJSONLog(), nil)
 }
 
-func fromMultihash(ctx context.Context, services core_iface.CoreAPI, hash cid.Cid, options *FetchOptions, io iface.IO) (*Snapshot, error) {
+func fromMultihash(ctx context.Context, services format.NodeGetter, hash cid.Cid, options *FetchOptions, io iface.IO) (*Snapshot, error) {
 	result, err := io.Read(ctx, services, hash)
 	if err != nil {
 		return nil, errmsg.ErrCBOROperationFailed.Wrap(err)
@@ -85,7 +85,7 @@ func fromMultihash(ctx context.Context, services core_iface.CoreAPI, hash cid.Ci
 	}, nil
 }
 
-func fromEntryHash(ctx context.Context, services core_iface.CoreAPI, hashes []cid.Cid, options *FetchOptions, io iface.IO) ([]iface.IPFSLogEntry, error) {
+func fromEntryHash(ctx context.Context, services format.NodeGetter, hashes []cid.Cid, options *FetchOptions, io iface.IO) ([]iface.IPFSLogEntry, error) {
 	if services == nil {
 		return nil, errmsg.ErrIPFSNotDefined
 	}
@@ -124,7 +124,7 @@ func fromEntryHash(ctx context.Context, services core_iface.CoreAPI, hashes []ci
 	return entries, nil
 }
 
-func fromJSON(ctx context.Context, services core_iface.CoreAPI, jsonLog *iface.JSONLog, options *iface.FetchOptions) (*Snapshot, error) {
+func fromJSON(ctx context.Context, services format.NodeGetter, jsonLog *iface.JSONLog, options *iface.FetchOptions) (*Snapshot, error) {
 	if services == nil {
 		return nil, errmsg.ErrIPFSNotDefined
 	}
@@ -154,7 +154,7 @@ func fromJSON(ctx context.Context, services core_iface.CoreAPI, jsonLog *iface.J
 	}, nil
 }
 
-func fromEntry(ctx context.Context, services core_iface.CoreAPI, sourceEntries []iface.IPFSLogEntry, options *iface.FetchOptions) (*Snapshot, error) {
+func fromEntry(ctx context.Context, services format.NodeGetter, sourceEntries []iface.IPFSLogEntry, options *iface.FetchOptions) (*Snapshot, error) {
 	if services == nil {
 		return nil, errmsg.ErrIPFSNotDefined
 	}

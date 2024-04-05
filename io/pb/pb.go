@@ -7,7 +7,6 @@ import (
 	"github.com/ipfs/go-cid"
 	format "github.com/ipfs/go-ipld-format"
 	dag "github.com/ipfs/go-merkledag"
-	core_iface "github.com/ipfs/interface-go-ipfs-core"
 
 	"berty.tech/go-ipfs-log/errmsg"
 	idp "berty.tech/go-ipfs-log/identityprovider"
@@ -20,7 +19,7 @@ type pb struct {
 	refEntry iface.IPFSLogEntry
 }
 
-func (p *pb) Write(ctx context.Context, ipfs core_iface.CoreAPI, obj interface{}, opts *iface.WriteOpts) (cid.Cid, error) {
+func (p *pb) Write(ctx context.Context, ipfs format.NodeAdder, obj interface{}, opts *iface.WriteOpts) (cid.Cid, error) {
 	var err error
 	payload := []byte(nil)
 
@@ -43,15 +42,15 @@ func (p *pb) Write(ctx context.Context, ipfs core_iface.CoreAPI, obj interface{}
 	node := &dag.ProtoNode{}
 	node.SetData(payload)
 
-	if err := ipfs.Dag().Add(ctx, node); err != nil {
+	if err := ipfs.Add(ctx, node); err != nil {
 		return cid.Cid{}, err
 	}
 
 	return node.Cid(), nil
 }
 
-func (p *pb) Read(ctx context.Context, ipfs core_iface.CoreAPI, contentIdentifier cid.Cid) (format.Node, error) {
-	node, err := ipfs.Dag().Get(ctx, contentIdentifier)
+func (p *pb) Read(ctx context.Context, ipfs format.NodeGetter, contentIdentifier cid.Cid) (format.Node, error) {
+	node, err := ipfs.Get(ctx, contentIdentifier)
 	if err != nil {
 		return nil, err
 	}
